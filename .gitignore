@@ -1,2 +1,4 @@
 BUILD/
 build/
+__pycache__/
+.mbed
