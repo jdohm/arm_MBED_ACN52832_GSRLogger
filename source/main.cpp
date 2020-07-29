@@ -9,12 +9,27 @@
 #include "SEGGER_RTT.h"
 #include "SEGGER_RTT.c"
 #include "SEGGER_RTT_printf.c"
+#include "SparkFun_Bio_Sensor_Hub_Library.h"
 
 // To use milliseconds without calling std::chrono
 using namespace std::chrono;
 
 // Blinking rate in milliseconds
 #define BLINKING_RATE     50ms
+
+
+// --- I2C ---
+I2C i2c(I2C_SDA0,I2C_SCL0);
+    // HR
+    DigitalOut   resetPin(p26,0);
+    DigitalInOut mfioPin(p25,PIN_OUTPUT,PullUp,0);
+    //SparkFun_Bio_Sensor_Hub bioHub(p26, p25);//resPin, mfioPin
+    SparkFun_Bio_Sensor_Hub bioHub(resetPin, mfioPin);//resPin, mfioPin
+
+    bioData body;
+    // --- ACC ---
+    DigitalIn   ACC_Int1(p27);
+//I2C end
 
 // Initialise the digital pin LD1 as an output
 DigitalOut led(p26);
