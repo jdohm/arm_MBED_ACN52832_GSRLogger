@@ -41,9 +41,38 @@ bmaData BMA253::read(){
 	data[0] = REG_ACC_X;
 	_i2c->write(_address,data,1,true);
 	_i2c->read(_address,data,6,false);
-	bdat.x = (data[0]<<8|data[1]);
-	bdat.y = (data[2]<<8|data[3]);
-	bdat.z = (data[4]<<8|data[5]);
+	bdat.x = (data[0] | (data[1]<<8));
+	bdat.y = (data[2] | (data[3]<<8));
+	bdat.z = (data[4] | (data[5]<<8));
+	/*
+	switch (_range){
+		case RANGE_2G:
+			bdat.xf = (bdat.x>>5)*0.98;
+			bdat.yf = (bdat.y>>5)*0.98;
+			bdat.zf = (bdat.z>>5)*0.98;
+		break;
+		case RANGE_4G:
+			bdat.xf = (bdat.x>>5)*1.95;
+			bdat.yf = (bdat.y>>5)*1.95;
+			bdat.zf = (bdat.z>>5)*1.95;
+		break;
+		case RANGE_8G:
+			bdat.xf = (bdat.x>>5)*3.91;
+			bdat.yf = (bdat.y>>5)*3.91;
+			bdat.zf = (bdat.z>>5)*3.91;
+		break;
+		case RANGE_16G:
+			bdat.xf = (bdat.x>>5)*7.81;
+			bdat.yf = (bdat.y>>5)*7.81;
+			bdat.zf = (bdat.z>>5)*7.81;
+		break;
+		default:
+			bdat.xf = 0.0;
+			bdat.yf = 0.0;
+			bdat.zf = 0.0;
+		break;
+	}
+	*/
 	return bdat;
 }
 

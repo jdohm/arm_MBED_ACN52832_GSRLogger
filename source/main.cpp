@@ -10,12 +10,15 @@
 #include "SEGGER_RTT.c"
 #include "SEGGER_RTT_printf.c"
 #include "SparkFun_Bio_Sensor_Hub_Library.h"
+#include "BMA253.h"
+//#include "BMA253.cpp"
+#include <string>
 
 // To use milliseconds without calling std::chrono
 using namespace std::chrono;
 
 // Blinking rate in milliseconds
-#define BLINKING_RATE     50ms
+#define BLINKING_RATE     1500ms
 
 
 // --- I2C ---
@@ -29,6 +32,8 @@ I2C i2c(I2C_SDA0,I2C_SCL0);
     bioData body;
     // --- ACC ---
     DigitalIn   ACC_Int1(p27);
+    BMA253 bma(ADDRESS_ONE);
+    bmaData accData;
 //I2C end
 
 // Initialise the digital pin LD1 as an output
@@ -38,16 +43,26 @@ AnalogIn adc_gsr(p28);
 
 int main()
 {
+    //ACC start
+    int result = bma.begin(i2c);
+
 	// get start time
 	auto start = Kernel::Clock::now(); // type will be Kernel::Clock::time_point
 
+    accData = bma.read();
+
 	SEGGER_RTT_printf(0,"times since start in ms, adc value between 0xFFFF and 0x0\n");
 	SEGGER_RTT_printf(0,"outputs in decimals \n");
+
     while (true) {
 	// get elapsed time in milliseconds
 	milliseconds elapsed_time = Kernel::Clock::now() - start;
 	// print/log timestamp and adc value to RTT
 	SEGGER_RTT_printf(0,"%d adc value: %d\n",int(elapsed_time.count()),adc_gsr.read_u16());
+    accData = bma.read();
+	SEGGER_RTT_printf(0,"%d x value: %d\n",int(elapsed_time.count()),accData.x);
+	SEGGER_RTT_printf(0,"%d y value: %d\n",int(elapsed_time.count()),accData.y);
+	SEGGER_RTT_printf(0,"%d z value: %d\n",int(elapsed_time.count()),accData.z);
         led = !led;
         ThisThread::sleep_for(BLINKING_RATE);
     }

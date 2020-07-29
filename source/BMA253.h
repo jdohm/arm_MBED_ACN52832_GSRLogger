@@ -84,6 +84,7 @@ class BMA253
   	//----------- variables -------------//
     uint8_t _address;
     I2C *_i2c;
+		uint8_t _range = RANGE_2G;
 		//----------- functiones ------------//
 		uint8_t writeByte(char reg, char dat);
 		uint8_t readByte(char reg);
