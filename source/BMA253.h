@@ -83,6 +83,11 @@
 #define INTERRUPT_PIN_INT1		0x01
 #define INTERRUPT_PIN_INT2		0x02
 
+#define REG_INTERRUPT_EL_BEHAVIOUR 0x20
+#define INTERRUPT_EL_BEHAVIOUR_PUSHPULL 	0b00
+#define INTERRUPT_EL_BEHAVIOUR_OPENDRIVE 	0b10
+#define INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL 0b1
+#define INTERRUPT_EL_BEHAVIOUR_LVL_INV 		0b0
 
 #define REG_INTERRUPT_MODE 0x21
 #define INTERRUPT_MODE_NON_LATCHED 0b0000
@@ -132,6 +137,9 @@ class BMA253
 	//Chip temp
 	bmaData readTemp();
 	//Interrupts
+	// chose Int Pin (INTERRUPT_PIN_INT*), and behaviour (push pull or open drain) (INTERRUPT_EL_BEHAVIOUR_*) to be set.
+	// optional set the lvl (INTERRUPT_EL_BEHAVIOUR_LVL_*) (inverted or normal)
+	uint8_t setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl = INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL);
 	// chose Int Pin (INTERRUPT_PIN_INT*), and interrupt (INTERRUPT_PIN_*) to be set.
 	// optional set the interrupt mode (INTERRUPT_MODE_*)
 	uint8_t activateInt(uint8_t pin, uint16_t interrupt);

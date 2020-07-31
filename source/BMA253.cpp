@@ -19,6 +19,36 @@ uint8_t BMA253::begin(I2C &i2c){
 	return 0;
 }
 //Interrupts
+uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
+	char _readData;
+	switch (pin){
+		case INTERRUPT_PIN_INT1:
+			_readData = readByte(REG_INTERRUPT_EL_BEHAVIOUR);
+			//set only the behaviour bit
+			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|beh;
+			else _readData = _readData&!beh;
+			//set only the level bit
+			if(beh == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|lvl;
+			else _readData = _readData&!lvl;
+			//write the changed data back
+			return writeByte(REG_INTERRUPT_EL_BEHAVIOUR,_readData);
+		break;
+		case INTERRUPT_PIN_INT2:
+			_readData = readByte(REG_INTERRUPT_EL_BEHAVIOUR);
+			//set only the behaviour bit
+			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|(beh<<2);
+			else _readData = _readData&!(beh<<2);
+			//set only the level bit
+			if(beh == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|(lvl<<2);
+			else _readData = _readData&!(lvl<<2);
+			//write the changed data back
+			return writeByte(REG_INTERRUPT_EL_BEHAVIOUR,_readData);
+		break;
+		default:
+			return 1;//error unknown pin
+		break;
+	}
+}
 // chose Int Pin (INTERRUPT_PIN_INT*), and interrupt (INTERRUPT_PIN_*) to be set.
 // optional set the interrupt mode (INTERRUPT_MODE_*)
 uint8_t BMA253::activateInt(uint8_t pin, uint16_t interrupt){
@@ -50,7 +80,7 @@ uint8_t BMA253::activateInt(uint8_t pin, uint16_t interrupt){
 			}
 		break;
 		default:
-			return 0;
+			return 1;//error unknown pin
 		break;
 	}
 }

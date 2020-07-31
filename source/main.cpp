@@ -11,8 +11,6 @@
 #include "SEGGER_RTT_printf.c"
 #include "SparkFun_Bio_Sensor_Hub_Library.h"
 #include "BMA253.h"
-//#include "BMA253.cpp"
-#include <string>
 
 // To use milliseconds without calling std::chrono
 using namespace std::chrono;
@@ -45,11 +43,12 @@ int main()
 {
     //ACC start
     int result = bma.begin(i2c);
+    bma.setElIntBehaviour(INTERRUPT_PIN_INT1,INTERRUPT_EL_BEHAVIOUR_PUSHPULL);
+    result = bma.moveIntSetThreashold(100,0b11);
+    result = bma.moveInt(true);
 
 	// get start time
 	auto start = Kernel::Clock::now(); // type will be Kernel::Clock::time_point
-
-    accData = bma.read();
 
 	SEGGER_RTT_printf(0,"times since start in ms, adc value between 0xFFFF and 0x0\n");
 	SEGGER_RTT_printf(0,"outputs in decimals \n");
