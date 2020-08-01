@@ -43,9 +43,18 @@ int main()
 {
     //ACC start
     int result = bma.begin(i2c);
-    bma.setElIntBehaviour(INTERRUPT_PIN_INT1,INTERRUPT_EL_BEHAVIOUR_PUSHPULL);
+    result = bma.setElIntBehaviour(INTERRUPT_PIN_INT1,INTERRUPT_EL_BEHAVIOUR_PUSHPULL);
+    #ifdef _debug
+		SEGGER_RTT_printf(0,"setElIntBehaviour returned: %X\n",result);
+	#endif
     result = bma.moveIntSetThreashold(100,0b11);
+    #ifdef _debug
+		SEGGER_RTT_printf(0,"moveIntSetThreashold returned: %X\n",result);
+	#endif
     result = bma.moveInt(true);
+    #ifdef _debug
+		SEGGER_RTT_printf(0,"moveInt returned: %X\n",result);
+	#endif
 
 	// get start time
 	auto start = Kernel::Clock::now(); // type will be Kernel::Clock::time_point

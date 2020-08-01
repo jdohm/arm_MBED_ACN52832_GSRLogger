@@ -7,8 +7,9 @@
 
 //----------- includes --------------//
 #include <mbed.h>
-
+#include "SEGGER_RTT.h"
 //----------- defines ---------------//
+#define _debug
 // 7-Bit address 0x18, 8-bit address 0x30
 #define ADDRESS_ONE 	0x30
 // 7-Bit address 0x19, 8-bit address 0x32

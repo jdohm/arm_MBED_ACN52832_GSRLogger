@@ -5,7 +5,7 @@
 
 #include <mbed.h>
 #include <BMA253.h>
-
+#include "SEGGER_RTT.h"
 //----------- constructor -----------//
 BMA253::BMA253(uint8_t address){
 	_address = address;
@@ -24,23 +24,35 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 	switch (pin){
 		case INTERRUPT_PIN_INT1:
 			_readData = readByte(REG_INTERRUPT_EL_BEHAVIOUR);
+			#ifdef _debug
+				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR read: 0x%X\n",_readData);
+			#endif
 			//set only the behaviour bit
 			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|beh;
 			else _readData = _readData&!beh;
 			//set only the level bit
 			if(beh == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|lvl;
 			else _readData = _readData&!lvl;
+			#ifdef _debug
+				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
+			#endif
 			//write the changed data back
 			return writeByte(REG_INTERRUPT_EL_BEHAVIOUR,_readData);
 		break;
 		case INTERRUPT_PIN_INT2:
 			_readData = readByte(REG_INTERRUPT_EL_BEHAVIOUR);
+			#ifdef _debug
+				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR read: 0x%X\n",_readData);
+			#endif
 			//set only the behaviour bit
 			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|(beh<<2);
 			else _readData = _readData&!(beh<<2);
 			//set only the level bit
 			if(beh == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|(lvl<<2);
 			else _readData = _readData&!(lvl<<2);
+			#ifdef _debug
+				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
+			#endif
 			//write the changed data back
 			return writeByte(REG_INTERRUPT_EL_BEHAVIOUR,_readData);
 		break;
@@ -53,6 +65,9 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 // optional set the interrupt mode (INTERRUPT_MODE_*)
 uint8_t BMA253::activateInt(uint8_t pin, uint16_t interrupt){
 	char _readData;
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"entered activateInt with pin:0x%X and interrupt:0x%X\n",pin,interrupt);
+	#endif
 	switch (pin){
 		case INTERRUPT_PIN_INT1:
 			if(	interrupt <= 0xFF){
@@ -185,20 +200,23 @@ uint8_t BMA253::moveIntSetThreashold(uint8_t thr){
 		deactivateInt(INTERRUPT_PIN_INT2,INTERRUPT_PIN_SLOPE);
 		_activeInts = _activeInts|0x02;
 	}
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"slope was active on: 0x%X\n",_activeInts);
+	#endif
 	// return 1 (error) if writeByte returned error, otherwise continue
 	// leaves interrupts deaktivated even if they where active before
  	if(writeByte(REG_INTERRUPT_SLOPE_THREASHOLD,thr)) return 1;
   ThisThread::sleep_for(12ms);
 	switch (_activeInts){
 		case 0x01:
-			return activateInt(REG_INTERRUPT_PIN_1,INTERRUPT_PIN_SLOPE);
+			return activateInt(INTERRUPT_PIN_INT1,INTERRUPT_PIN_SLOPE);
 		break;
 		case 0x02:
-			return activateInt(REG_INTERRUPT_PIN_2,INTERRUPT_PIN_SLOPE);
+			return activateInt(INTERRUPT_PIN_INT2,INTERRUPT_PIN_SLOPE);
 		break;
 		case 0x03:
 			//only return 0 (SUCCESS) if both activations returned success
-			return activateInt(REG_INTERRUPT_PIN_1,INTERRUPT_PIN_SLOPE)|activateInt(REG_INTERRUPT_PIN_2,INTERRUPT_PIN_SLOPE);
+			return activateInt(INTERRUPT_PIN_INT1,INTERRUPT_PIN_SLOPE)|activateInt(INTERRUPT_PIN_INT2,INTERRUPT_PIN_SLOPE);
 		break;
 		default:
 			//return 0 (SUCCESS) if writeByte was a success and no reg needs activation
@@ -216,7 +234,10 @@ uint8_t BMA253::moveIntSetThreashold(uint8_t thr){
 // Example: slope_dur = 00b, ..., 11b = 1decimal, ..., 4decimal.
 uint8_t BMA253::moveIntSetThreashold(uint8_t thr, uint8_t slope_dur){
 	uint8_t _activeInts;
-	if(slope_dur <= 0x04) return 1;// only 2 bits for slope_dur!
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"entered moveIntSetThreashold with thr:0x%X and slope_dur:0x%X\n",thr,slope_dur);
+	#endif
+	if(slope_dur >= 0x04) return 1;// only 2 bits for slope_dur!
 	//check if Pin Int1 was connected to slope interrupt before
 	// if so deactivate and safe the information
 	if(readByte(REG_INTERRUPT_PIN_1)&INTERRUPT_PIN_SLOPE){
@@ -229,28 +250,40 @@ uint8_t BMA253::moveIntSetThreashold(uint8_t thr, uint8_t slope_dur){
 		deactivateInt(INTERRUPT_PIN_INT2,INTERRUPT_PIN_SLOPE);
 		_activeInts = _activeInts|0x02;
 	}
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"slope was active on: 0x%X\n",_activeInts);
+	#endif
 	//---- slope duration ----//
 	//read old register data
 	uint8_t _readData = readByte(REG_INTERRUPT_SLOPE_DUR);
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"REG_INTERRUPT_SLOPE_DUR read: 0x%X\n",_readData);
+	#endif
 	//set only slope_dur and keep old values for rest of register
 	// return 1 (error) if writeByte returned error, otherwise continue
 	// leaves interrupts deaktivated even if they where active before
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"REG_INTERRUPT_SLOPE_DUR write: 0x%X\n",(_readData&0xFC)|slope_dur);
+	#endif
  	if(writeByte(REG_INTERRUPT_SLOPE_DUR,(_readData&0xFC)|slope_dur)) return 1;
 	//---- slope dur end -----//
 	// return 1 (error) if writeByte returned error, otherwise continue
 	// leaves interrupts deaktivated even if they where active before
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"REG_INTERRUPT_SLOPE_THREASHOLD write: 0x%X\n",thr);
+	#endif
  	if(writeByte(REG_INTERRUPT_SLOPE_THREASHOLD,thr)) return 1;
   ThisThread::sleep_for(12ms);
 	switch (_activeInts){
 		case 0x01:
-			return activateInt(REG_INTERRUPT_PIN_1,INTERRUPT_PIN_SLOPE);
+			return activateInt(INTERRUPT_PIN_INT1,INTERRUPT_PIN_SLOPE);
 		break;
 		case 0x02:
-			return activateInt(REG_INTERRUPT_PIN_2,INTERRUPT_PIN_SLOPE);
+			return activateInt(INTERRUPT_PIN_INT2,INTERRUPT_PIN_SLOPE);
 		break;
 		case 0x03:
 			//only return 0 (SUCCESS) if both activations returned success
-			return activateInt(REG_INTERRUPT_PIN_1,INTERRUPT_PIN_SLOPE)|activateInt(REG_INTERRUPT_PIN_2,INTERRUPT_PIN_SLOPE);
+			return activateInt(INTERRUPT_PIN_INT1,INTERRUPT_PIN_SLOPE)|activateInt(INTERRUPT_PIN_INT2,INTERRUPT_PIN_SLOPE);
 		break;
 		default:
 			//return 0 (SUCCESS) if writeByte was a success and no reg needs activation
