@@ -24,8 +24,7 @@ I2C i2c(I2C_SDA0,I2C_SCL0);
     // HR
     DigitalOut   resetPin(p26,0);
     DigitalInOut mfioPin(p25,PIN_OUTPUT,PullUp,0);
-    //SparkFun_Bio_Sensor_Hub bioHub(p26, p25);//resPin, mfioPin
-    SparkFun_Bio_Sensor_Hub bioHub(resetPin, mfioPin);//resPin, mfioPin
+    SparkFun_Bio_Sensor_Hub bioHub(resetPin, mfioPin);
 
     bioData body;
     // --- ACC ---
@@ -35,7 +34,7 @@ I2C i2c(I2C_SDA0,I2C_SCL0);
 //I2C end
 
 // Initialise the digital pin LD1 as an output
-DigitalOut led(p26);
+DigitalOut led(p24);
 // Read from p0.28 - use jumper to switch from Pot to J4
 AnalogIn adc_gsr(p28);
 
@@ -59,6 +58,22 @@ int main()
    // #ifdef _debug
    //	SEGGER_RTT_printf(0,"knockOnInt returned: %X\n",result);
    // #endif
+   ThisThread::sleep_for(1s);
+   //HR start
+    result = bioHub.begin(i2c);
+    SEGGER_RTT_printf(0,"bioHub returned %d\n",result);
+    ThisThread::sleep_for(1s);
+    result = bioHub.configBpm(MODE_ONE);
+    SEGGER_RTT_printf(0,"bioHub.configBpm returned %d\n",result);
+    ThisThread::sleep_for(4s);
+    body = bioHub.readBpm();
+    SEGGER_RTT_printf(0,"Heartrate: %d\n",body.heartRate);
+    SEGGER_RTT_printf(0,"Confidence: %d\n",body.confidence);
+    SEGGER_RTT_printf(0,"Oxygen: %d\n",body.oxygen);
+    SEGGER_RTT_printf(0,"Status: %d\n",body.status);
+
+    ThisThread::sleep_for(1s);
+
 
 
 	// get start time
@@ -76,7 +91,14 @@ int main()
 	SEGGER_RTT_printf(0,"%d x value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.x,int16_t(accData.x));
 	SEGGER_RTT_printf(0,"%d y value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.y,int16_t(accData.y));
 	SEGGER_RTT_printf(0,"%d z value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.z,int16_t(accData.z));
-	SEGGER_RTT_printf(0,"%d int register: 0x%02X\n",int(elapsed_time.count()),bma.readByte(REG_INTERRUPT_ACTIVE));
+    result = bma.readByte(REG_INTERRUPT_ACTIVE);
+	SEGGER_RTT_printf(0,"%d movement triggered: %01X\n",int(elapsed_time.count()),(result&0x04)?1:0);
+	SEGGER_RTT_printf(0,"%d double tap triggered: %01X\n",int(elapsed_time.count()),(result&0x10)?1:0);
+
+    body = bioHub.readBpm();
+    SEGGER_RTT_printf(0,"Heartrate: %d\n",body.heartRate);
+    SEGGER_RTT_printf(0,"Confidence: %d\n",body.confidence);
+
         led = !led;
         ThisThread::sleep_for(BLINKING_RATE);
     }
