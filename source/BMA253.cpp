@@ -12,10 +12,18 @@ BMA253::BMA253(uint8_t address){
 }
 //----------- functiones ------------//
 uint8_t BMA253::begin(I2C &i2c){
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"entered BMA253::begin\n");
+	#endif
   _i2c = &i2c;
 	if (writeByte(REG_RANGE,RANGE_2G)) return 1;
 	if (writeByte(REG_ACC_FILTER_BW,ACC_FILTER_BW_250HZ)) return 1;
 	if (writeByte(REG_ACC_FILTER,ACC_FILTER_ON)) return 1;
+	#ifdef _debug
+		SEGGER_RTT_printf(0,"REG_INTERRUPT_PIN_1  read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_1));
+		SEGGER_RTT_printf(0,"REG_INTERRUPT_PIN_12 read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_12));
+		SEGGER_RTT_printf(0,"REG_INTERRUPT_PIN_2  read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_2));
+	#endif
 	return 0;
 }
 //Interrupts
@@ -31,7 +39,7 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|beh;
 			else _readData = _readData&!beh;
 			//set only the level bit
-			if(beh == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|lvl;
+			if(lvl == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|lvl;
 			else _readData = _readData&!lvl;
 			#ifdef _debug
 				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
@@ -173,12 +181,22 @@ uint8_t BMA253::deactivateInt(uint8_t pin, uint16_t interrupt){
 
 //KnockOn | sets the double tap interrupt
 uint8_t BMA253::knockOnInt(bool set, uint8_t pin){
+	char _readData;
+	//activate doubla tab without changing other register values
+	_readData = readByte(REG_INTERRUPT_SLOPE_AXIS);
+	_readData = _readData|INTERRUPT_D_TAP_EN;
+	writeByte(REG_INTERRUPT_SLOPE_AXIS,_readData);
 	if(set) return activateInt(pin,INTERRUPT_PIN_D_TAP);
 	else return deactivateInt(pin,INTERRUPT_PIN_D_TAP);
 }
 //Movementdetection
 uint8_t BMA253::moveInt(bool set, uint8_t pin){
-	if(set) return activateInt(pin,INTERRUPT_PIN_SLOPE);
+	char _readData;
+	//activate all axis without changing other register values
+	_readData = readByte(REG_INTERRUPT_SLOPE_AXIS);
+	_readData = _readData|INTERRUPT_SLOPE_AXIS_X|INTERRUPT_SLOPE_AXIS_Y|INTERRUPT_SLOPE_AXIS_Z;
+	writeByte(REG_INTERRUPT_SLOPE_AXIS,_readData);
+	if(set) return activateInt(pin,INTERRUPT_PIN_SLOPE,INTERRUPT_MODE_TMP_250ms);
 	else return deactivateInt(pin,INTERRUPT_PIN_SLOPE);
 }
 

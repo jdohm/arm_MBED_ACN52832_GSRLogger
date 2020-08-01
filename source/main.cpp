@@ -16,7 +16,7 @@
 using namespace std::chrono;
 
 // Blinking rate in milliseconds
-#define BLINKING_RATE     1500ms
+#define BLINKING_RATE     100ms
 
 
 // --- I2C ---
@@ -43,11 +43,11 @@ int main()
 {
     //ACC start
     int result = bma.begin(i2c);
-    result = bma.setElIntBehaviour(INTERRUPT_PIN_INT1,INTERRUPT_EL_BEHAVIOUR_PUSHPULL);
+    result = bma.setElIntBehaviour(INTERRUPT_PIN_INT1,INTERRUPT_EL_BEHAVIOUR_PUSHPULL,INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL);
     #ifdef _debug
 		SEGGER_RTT_printf(0,"setElIntBehaviour returned: %X\n",result);
 	#endif
-    result = bma.moveIntSetThreashold(100,0b11);
+    result = bma.moveIntSetThreashold(0x10,0b10);
     #ifdef _debug
 		SEGGER_RTT_printf(0,"moveIntSetThreashold returned: %X\n",result);
 	#endif
@@ -55,6 +55,11 @@ int main()
     #ifdef _debug
 		SEGGER_RTT_printf(0,"moveInt returned: %X\n",result);
 	#endif
+   // result = bma.knockOnInt(true);
+   // #ifdef _debug
+   //	SEGGER_RTT_printf(0,"knockOnInt returned: %X\n",result);
+   // #endif
+
 
 	// get start time
 	auto start = Kernel::Clock::now(); // type will be Kernel::Clock::time_point
@@ -68,9 +73,10 @@ int main()
 	// print/log timestamp and adc value to RTT
 	SEGGER_RTT_printf(0,"%d adc value: %d\n",int(elapsed_time.count()),adc_gsr.read_u16());
     accData = bma.read();
-	SEGGER_RTT_printf(0,"%d x value: %d\n",int(elapsed_time.count()),accData.x);
-	SEGGER_RTT_printf(0,"%d y value: %d\n",int(elapsed_time.count()),accData.y);
-	SEGGER_RTT_printf(0,"%d z value: %d\n",int(elapsed_time.count()),accData.z);
+	SEGGER_RTT_printf(0,"%d x value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.x,int16_t(accData.x));
+	SEGGER_RTT_printf(0,"%d y value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.y,int16_t(accData.y));
+	SEGGER_RTT_printf(0,"%d z value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.z,int16_t(accData.z));
+	SEGGER_RTT_printf(0,"%d int register: 0x%02X\n",int(elapsed_time.count()),bma.readByte(REG_INTERRUPT_ACTIVE));
         led = !led;
         ThisThread::sleep_for(BLINKING_RATE);
     }

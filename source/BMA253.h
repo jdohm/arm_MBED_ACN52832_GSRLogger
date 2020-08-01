@@ -19,6 +19,7 @@
 #define REG_ACC_Y 	0x04
 #define REG_ACC_Z 	0x06
 #define REG_TEMP 		0x08
+#define REG_INTERRUPT_ACTIVE 0x09
 #define REG_RANGE		0x0F
 // 0011	| 2g	| 0.98mg/LSB
 // 0101 | 4g	| 1.95mg/LSB
@@ -51,6 +52,12 @@
 #define REG_ACC_FILTER		0x13 //activate/deactivate Filter
 #define ACC_FILTER_ON 		0x80 
 #define ACC_FILTER_OFF 		0x00
+
+#define REG_INTERRUPT_SLOPE_AXIS 	0x16
+#define INTERRUPT_SLOPE_AXIS_X 		0x01
+#define INTERRUPT_SLOPE_AXIS_Y 		0x02
+#define INTERRUPT_SLOPE_AXIS_Z 		0x04
+#define INTERRUPT_D_TAP_EN		 		0x10
 
 // A safe way to change parameters of an enabled interrupt
 // is to keep the following sequence: 
@@ -153,13 +160,14 @@ class BMA253
 	uint8_t moveInt(bool set, uint8_t pin = INTERRUPT_PIN_INT1);
 	uint8_t moveIntSetThreashold(uint8_t thr);
 	uint8_t moveIntSetThreashold(uint8_t thr, uint8_t slope_dur);
+	//basic functions
+	uint8_t writeByte(char reg, char dat);
+	uint8_t readByte(char reg);
 	private:
   	//----------- variables -------------//
     uint8_t _address;
     I2C *_i2c;
 		uint8_t _range = RANGE_2G;
 		//----------- functiones ------------//
-		uint8_t writeByte(char reg, char dat);
-		uint8_t readByte(char reg);
 };
 #endif
