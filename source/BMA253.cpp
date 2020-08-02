@@ -13,16 +13,16 @@ BMA253::BMA253(uint8_t address){
 //----------- functiones ------------//
 uint8_t BMA253::begin(I2C &i2c){
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"entered BMA253::begin\n");
+		SEGGER_RTT_printf(0,"#entered BMA253::begin\n");
 	#endif
   _i2c = &i2c;
 	if (writeByte(REG_RANGE,RANGE_2G)) return 1;
 	if (writeByte(REG_ACC_FILTER_BW,ACC_FILTER_BW_250HZ)) return 1;
 	if (writeByte(REG_ACC_FILTER,ACC_FILTER_ON)) return 1;
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"REG_INTERRUPT_PIN_1  read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_1));
-		SEGGER_RTT_printf(0,"REG_INTERRUPT_PIN_12 read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_12));
-		SEGGER_RTT_printf(0,"REG_INTERRUPT_PIN_2  read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_2));
+		SEGGER_RTT_printf(0,"#REG_INTERRUPT_PIN_1  read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_1));
+		SEGGER_RTT_printf(0,"#REG_INTERRUPT_PIN_12 read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_12));
+		SEGGER_RTT_printf(0,"#REG_INTERRUPT_PIN_2  read: 0x%02X\n",readByte(REG_INTERRUPT_PIN_2));
 	#endif
 	return 0;
 }
@@ -33,7 +33,7 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 		case INTERRUPT_PIN_INT1:
 			_readData = readByte(REG_INTERRUPT_EL_BEHAVIOUR);
 			#ifdef _debug
-				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR read: 0x%X\n",_readData);
+				SEGGER_RTT_printf(0,"#REG_INTERRUPT_EL_BEHAVIOUR read: 0x%X\n",_readData);
 			#endif
 			//set only the behaviour bit
 			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|beh;
@@ -42,7 +42,7 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 			if(lvl == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|lvl;
 			else _readData = _readData&!lvl;
 			#ifdef _debug
-				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
+				SEGGER_RTT_printf(0,"#REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
 			#endif
 			//write the changed data back
 			return writeByte(REG_INTERRUPT_EL_BEHAVIOUR,_readData);
@@ -50,7 +50,7 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 		case INTERRUPT_PIN_INT2:
 			_readData = readByte(REG_INTERRUPT_EL_BEHAVIOUR);
 			#ifdef _debug
-				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR read: 0x%X\n",_readData);
+				SEGGER_RTT_printf(0,"#REG_INTERRUPT_EL_BEHAVIOUR read: 0x%X\n",_readData);
 			#endif
 			//set only the behaviour bit
 			if(beh == INTERRUPT_EL_BEHAVIOUR_OPENDRIVE)	_readData = _readData|(beh<<2);
@@ -59,7 +59,7 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 			if(beh == INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL)	_readData = _readData|(lvl<<2);
 			else _readData = _readData&!(lvl<<2);
 			#ifdef _debug
-				SEGGER_RTT_printf(0,"REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
+				SEGGER_RTT_printf(0,"#REG_INTERRUPT_EL_BEHAVIOUR write: 0x%X\n",_readData);
 			#endif
 			//write the changed data back
 			return writeByte(REG_INTERRUPT_EL_BEHAVIOUR,_readData);
@@ -74,7 +74,7 @@ uint8_t BMA253::setElIntBehaviour(uint8_t pin, uint8_t beh, uint8_t lvl){
 uint8_t BMA253::activateInt(uint8_t pin, uint16_t interrupt){
 	char _readData;
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"entered activateInt with pin:0x%X and interrupt:0x%X\n",pin,interrupt);
+		SEGGER_RTT_printf(0,"#entered activateInt with pin:0x%X and interrupt:0x%X\n",pin,interrupt);
 	#endif
 	switch (pin){
 		case INTERRUPT_PIN_INT1:
@@ -219,7 +219,7 @@ uint8_t BMA253::moveIntSetThreashold(uint8_t thr){
 		_activeInts = _activeInts|0x02;
 	}
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"slope was active on: 0x%X\n",_activeInts);
+		SEGGER_RTT_printf(0,"#slope was active on: 0x%X\n",_activeInts);
 	#endif
 	// return 1 (error) if writeByte returned error, otherwise continue
 	// leaves interrupts deaktivated even if they where active before
@@ -253,7 +253,7 @@ uint8_t BMA253::moveIntSetThreashold(uint8_t thr){
 uint8_t BMA253::moveIntSetThreashold(uint8_t thr, uint8_t slope_dur){
 	uint8_t _activeInts;
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"entered moveIntSetThreashold with thr:0x%X and slope_dur:0x%X\n",thr,slope_dur);
+		SEGGER_RTT_printf(0,"#entered moveIntSetThreashold with thr:0x%X and slope_dur:0x%X\n",thr,slope_dur);
 	#endif
 	if(slope_dur >= 0x04) return 1;// only 2 bits for slope_dur!
 	//check if Pin Int1 was connected to slope interrupt before
@@ -269,26 +269,26 @@ uint8_t BMA253::moveIntSetThreashold(uint8_t thr, uint8_t slope_dur){
 		_activeInts = _activeInts|0x02;
 	}
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"slope was active on: 0x%X\n",_activeInts);
+		SEGGER_RTT_printf(0,"#slope was active on: 0x%X\n",_activeInts);
 	#endif
 	//---- slope duration ----//
 	//read old register data
 	uint8_t _readData = readByte(REG_INTERRUPT_SLOPE_DUR);
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"REG_INTERRUPT_SLOPE_DUR read: 0x%X\n",_readData);
+		SEGGER_RTT_printf(0,"#REG_INTERRUPT_SLOPE_DUR read: 0x%X\n",_readData);
 	#endif
 	//set only slope_dur and keep old values for rest of register
 	// return 1 (error) if writeByte returned error, otherwise continue
 	// leaves interrupts deaktivated even if they where active before
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"REG_INTERRUPT_SLOPE_DUR write: 0x%X\n",(_readData&0xFC)|slope_dur);
+		SEGGER_RTT_printf(0,"#REG_INTERRUPT_SLOPE_DUR write: 0x%X\n",(_readData&0xFC)|slope_dur);
 	#endif
  	if(writeByte(REG_INTERRUPT_SLOPE_DUR,(_readData&0xFC)|slope_dur)) return 1;
 	//---- slope dur end -----//
 	// return 1 (error) if writeByte returned error, otherwise continue
 	// leaves interrupts deaktivated even if they where active before
 	#ifdef _debug
-		SEGGER_RTT_printf(0,"REG_INTERRUPT_SLOPE_THREASHOLD write: 0x%X\n",thr);
+		SEGGER_RTT_printf(0,"#REG_INTERRUPT_SLOPE_THREASHOLD write: 0x%X\n",thr);
 	#endif
  	if(writeByte(REG_INTERRUPT_SLOPE_THREASHOLD,thr)) return 1;
   ThisThread::sleep_for(12ms);

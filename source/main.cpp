@@ -44,15 +44,15 @@ int main()
     int result = bma.begin(i2c);
     result = bma.setElIntBehaviour(INTERRUPT_PIN_INT1,INTERRUPT_EL_BEHAVIOUR_PUSHPULL,INTERRUPT_EL_BEHAVIOUR_LVL_NORMAL);
     #ifdef _debug
-		SEGGER_RTT_printf(0,"setElIntBehaviour returned: %X\n",result);
+		SEGGER_RTT_printf(0,"#setElIntBehaviour returned: %X\n",result);
 	#endif
     result = bma.moveIntSetThreashold(0x10,0b10);
     #ifdef _debug
-		SEGGER_RTT_printf(0,"moveIntSetThreashold returned: %X\n",result);
+		SEGGER_RTT_printf(0,"#moveIntSetThreashold returned: %X\n",result);
 	#endif
     result = bma.moveInt(true);
     #ifdef _debug
-		SEGGER_RTT_printf(0,"moveInt returned: %X\n",result);
+		SEGGER_RTT_printf(0,"#moveInt returned: %X\n",result);
 	#endif
    // result = bma.knockOnInt(true);
    // #ifdef _debug
@@ -61,16 +61,16 @@ int main()
    ThisThread::sleep_for(1s);
    //HR start
     result = bioHub.begin(i2c);
-    SEGGER_RTT_printf(0,"bioHub returned %d\n",result);
+    SEGGER_RTT_printf(0,"#bioHub returned %d\n",result);
     ThisThread::sleep_for(1s);
     result = bioHub.configBpm(MODE_ONE);
-    SEGGER_RTT_printf(0,"bioHub.configBpm returned %d\n",result);
+    SEGGER_RTT_printf(0,"#bioHub.configBpm returned %d\n",result);
     ThisThread::sleep_for(4s);
     body = bioHub.readBpm();
-    SEGGER_RTT_printf(0,"Heartrate: %d\n",body.heartRate);
-    SEGGER_RTT_printf(0,"Confidence: %d\n",body.confidence);
-    SEGGER_RTT_printf(0,"Oxygen: %d\n",body.oxygen);
-    SEGGER_RTT_printf(0,"Status: %d\n",body.status);
+    SEGGER_RTT_printf(0,"#Heartrate: %d\n",body.heartRate);
+    SEGGER_RTT_printf(0,"#Confidence: %d\n",body.confidence);
+    SEGGER_RTT_printf(0,"#Oxygen: %d\n",body.oxygen);
+    SEGGER_RTT_printf(0,"#Status: %d\n",body.status);
 
     ThisThread::sleep_for(1s);
 
@@ -79,8 +79,8 @@ int main()
 	// get start time
 	auto start = Kernel::Clock::now(); // type will be Kernel::Clock::time_point
 
-	SEGGER_RTT_printf(0,"times since start in ms, adc value between 0xFFFF and 0x0\n");
-	SEGGER_RTT_printf(0,"outputs in decimals \n");
+	SEGGER_RTT_printf(0,"#times since start in ms, adc value between 0xFFFF and 0x0\n");
+	SEGGER_RTT_printf(0,"#outputs in decimals \n");
     SEGGER_RTT_printf(0,"time;gsr;acc_x;y;z;movement_detected;double_tap_detected;HR;HR_Confidence\n");
     
     while (true) {
