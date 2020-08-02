@@ -81,23 +81,25 @@ int main()
 
 	SEGGER_RTT_printf(0,"times since start in ms, adc value between 0xFFFF and 0x0\n");
 	SEGGER_RTT_printf(0,"outputs in decimals \n");
-
+    SEGGER_RTT_printf(0,"time;gsr;acc_x;y;z;movement_detected;double_tap_detected;HR;HR_Confidence\n");
+    
     while (true) {
 	// get elapsed time in milliseconds
 	milliseconds elapsed_time = Kernel::Clock::now() - start;
 	// print/log timestamp and adc value to RTT
-	SEGGER_RTT_printf(0,"%d adc value: %d\n",int(elapsed_time.count()),adc_gsr.read_u16());
+	//SEGGER_RTT_printf(0,"%d adc_value: %d\n",int(elapsed_time.count()),adc_gsr.read_u16());
     accData = bma.read();
-	SEGGER_RTT_printf(0,"%d x value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.x,int16_t(accData.x));
-	SEGGER_RTT_printf(0,"%d y value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.y,int16_t(accData.y));
-	SEGGER_RTT_printf(0,"%d z value: %07d \t0x%08X\n",int(elapsed_time.count()),accData.z,int16_t(accData.z));
+	//SEGGER_RTT_printf(0,"%d x_value: %07d\n",int(elapsed_time.count()),accData.x);
+	//SEGGER_RTT_printf(0,"%d y_value: %07d\n",int(elapsed_time.count()),accData.y);
+	//SEGGER_RTT_printf(0,"%d z_value: %07d\n",int(elapsed_time.count()),accData.z);
     result = bma.readByte(REG_INTERRUPT_ACTIVE);
-	SEGGER_RTT_printf(0,"%d movement triggered: %01X\n",int(elapsed_time.count()),(result&0x04)?1:0);
-	SEGGER_RTT_printf(0,"%d double tap triggered: %01X\n",int(elapsed_time.count()),(result&0x10)?1:0);
+	//SEGGER_RTT_printf(0,"%d movement_triggered: %01X\n",int(elapsed_time.count()),(result&0x04)?1:0);
+	//SEGGER_RTT_printf(0,"%d double_tap_triggered: %01X\n",int(elapsed_time.count()),(result&0x10)?1:0);
 
     body = bioHub.readBpm();
-    SEGGER_RTT_printf(0,"Heartrate: %d\n",body.heartRate);
-    SEGGER_RTT_printf(0,"Confidence: %d\n",body.confidence);
+    //SEGGER_RTT_printf(0,"%d Heartrate: %d\n",int(elapsed_time.count()),body.heartRate);
+    //SEGGER_RTT_printf(0,"%d Confidence: %d\n",int(elapsed_time.count()),body.confidence);
+    SEGGER_RTT_printf(0, "%d;%d;%d;%d;%d;%01d;%01d;%02d;%02d\n",int(elapsed_time.count()),adc_gsr.read_u16(),accData.x,accData.y,accData.z,(result&0x04)?1:0,(result&0x10)?1:0,body.heartRate,body.confidence);
 
         led = !led;
         ThisThread::sleep_for(BLINKING_RATE);

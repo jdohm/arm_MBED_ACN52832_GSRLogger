@@ -1374,11 +1374,11 @@ uint8_t SparkFun_Bio_Sensor_Hub::readByte(char _familyByte, char _indexByte )
   //statusByte = _i2cPort->read();
   _i2cPort->read(_address,cmd,2,false);
   if( cmd[0] ){// SUCCESS (0x00) - how do I know its 
-    SEGGER_RTT_printf(0,"statusByte read error: %d\n",cmd[0]);
+  //  SEGGER_RTT_printf(0,"statusByte read error: %d\n",cmd[0]);
     return cmd[0]; // Return the error, see: READ_STATUS_BYTE_VALUE 
   }
   //_i2cPort->read(_address,&returnByte,2,false);
-    SEGGER_RTT_printf(0,"returnByte read returned: %d\n",cmd[1]);
+  //  SEGGER_RTT_printf(0,"returnByte read returned: %d\n",cmd[1]);
   return cmd[1]; // If good then return the actual byte. 
 }
 
