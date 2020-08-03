@@ -36,7 +36,8 @@ I2C i2c(I2C_SDA0,I2C_SCL0);
 // Initialise the digital pin LD1 as an output
 DigitalOut led(p24);
 // Read from p0.28 - use jumper to switch from Pot to J4
-AnalogIn adc_gsr(p28);
+AnalogIn adc_gsr1(p28);
+AnalogIn adc_gsr2(p29);
 
 int main()
 {
@@ -54,10 +55,10 @@ int main()
     #ifdef _debug
 		SEGGER_RTT_printf(0,"#moveInt returned: %X\n",result);
 	#endif
-   // result = bma.knockOnInt(true);
-   // #ifdef _debug
-   //	SEGGER_RTT_printf(0,"knockOnInt returned: %X\n",result);
-   // #endif
+    result = bma.knockOnInt(true);
+    #ifdef _debug
+   	    SEGGER_RTT_printf(0,"#knockOnInt returned: %X\n",result);
+    #endif
    ThisThread::sleep_for(1s);
    //HR start
     result = bioHub.begin(i2c);
@@ -81,7 +82,7 @@ int main()
 
 	SEGGER_RTT_printf(0,"#times since start in ms, adc value between 0xFFFF and 0x0\n");
 	SEGGER_RTT_printf(0,"#outputs in decimals \n");
-    SEGGER_RTT_printf(0,"time;gsr;acc_x;y;z;movement_detected;double_tap_detected;HR;HR_Confidence\n");
+    SEGGER_RTT_printf(0,"time;gsr1;gsr2;acc_x;y;z;movement_detected;double_tap_detected;HR;HR_Confidence\n");
     
     while (true) {
 	// get elapsed time in milliseconds
@@ -99,7 +100,7 @@ int main()
     body = bioHub.readBpm();
     //SEGGER_RTT_printf(0,"%d Heartrate: %d\n",int(elapsed_time.count()),body.heartRate);
     //SEGGER_RTT_printf(0,"%d Confidence: %d\n",int(elapsed_time.count()),body.confidence);
-    SEGGER_RTT_printf(0, "%d;%d;%d;%d;%d;%01d;%01d;%02d;%02d\n",int(elapsed_time.count()),adc_gsr.read_u16(),accData.x,accData.y,accData.z,(result&0x04)?1:0,(result&0x10)?1:0,body.heartRate,body.confidence);
+    SEGGER_RTT_printf(0, "%d;%d;%d;%d;%d;%d;%01d;%01d;%02d;%02d\n",int(elapsed_time.count()),adc_gsr1.read_u16(),adc_gsr2.read_u16(),accData.x,accData.y,accData.z,(result&0x04)?1:0,(result&0x10)?1:0,body.heartRate,body.confidence);
 
         led = !led;
         ThisThread::sleep_for(BLINKING_RATE);

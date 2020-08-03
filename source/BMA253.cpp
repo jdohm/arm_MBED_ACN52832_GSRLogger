@@ -317,9 +317,9 @@ bmaData BMA253::read(){
 	data[0] = REG_ACC_X;
 	_i2c->write(_address,data,1,true);
 	_i2c->read(_address,data,6,false);
-	bdat.x = (data[0] | (data[1]<<8))>>4;
-	bdat.y = (data[2] | (data[3]<<8))>>4;
-	bdat.z = (data[4] | (data[5]<<8))>>4;
+	bdat.x = int16_t((data[0]&0xF0) | int16_t(data[1]<<8))>>4;
+	bdat.y = int16_t((data[2]&0xF0) | int16_t(data[3]<<8))>>4;
+	bdat.z = int16_t((data[4]&0xF0) | int16_t(data[5]<<8))>>4;
 	/*
 	switch (_range){
 		case RANGE_2G:
